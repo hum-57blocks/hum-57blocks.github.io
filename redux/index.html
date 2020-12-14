@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redux</title>
+  <link rel="stylesheet" href="reveal/reset.css">
+  <link rel="stylesheet" href="reveal/reveal.css">
+  <link rel="stylesheet" href="reveal/theme/black.css">
+  <link rel="stylesheet" href="reveal/plugin/highlight/monokai.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section>Slide 1</section>
+
+    <section>Slide 2</section>
+
+    <section data-markdown>
+      <textarea data-template>
+        ### Slide 1
+        A paragraph with some text and a [link](http://hakim.se).
+        ---
+        ### Slide 2
+        ---
+        ### Slide 3
+      </textarea>
+    </section>
+
+    <section>
+  <pre><code data-trim data-noescape>
+(def lazy-fib
+  (concat
+   [0 1]
+   ((fn rfib [a b]
+        (lazy-cons (+ a b) (rfib b (+ a b)))) 0 1)))
+  </code></pre>
+    </section>
+  </div>
+</div>
+<script src="reveal/reveal.js"></script>
+<script src="reveal/plugin/markdown/markdown.js"></script>
+<script src="reveal/plugin/highlight/highlight.js"></script>
+<script>
+  new Reveal({
+    plugins: [ RevealMarkdown, RevealHighlight ]
+  }).initialize();
+</script>
+</body>
+</html>

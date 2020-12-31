@@ -12,29 +12,191 @@
 <div class="reveal">
   <div class="slides">
 
-    <section>Slide 1</section>
+    <!--    -->
+    <section data-markdown><textarea data-template>
+      1. Redux 简介
+      2. Redux 实现
+      2. React Redux
+    </textarea></section>
 
-    <section>Slide 2</section>
+<!--
+  应用中所有的 state 都以一个对象树的形式储存在一个单一的 store 中。
+  惟一改变 state 的办法是触发 action，一个描述发生什么的对象。
+  为了描述 action 如何改变 state 树，你需要编写 reducers。
+-->
+    <section data-markdown><textarea data-template>
+      Redux是状态容器，提供可预测化的状态管理。
+    </textarea></section>
 
-    <section data-markdown>
-      <textarea data-template>
-        ### Slide 1
-        A paragraph with some text and a [link](http://hakim.se).
-        ---
-        ### Slide 2
-        ---
-        ### Slide 3
-      </textarea>
+    <!--    -->
+    <section>
+      <section data-markdown><textarea data-template>
+        Redux原理简介
+      </textarea></section>
+      <section data-markdown><textarea data-template>
+        - Redux 将整个应用状态存储到 store 中
+        - 组件可通过 store.dispatch 派发行为 action 给 store
+        - store 不会直接修改 state, 而是通过 reducer 来生成新的 state 并返回给 store
+        - 其它组件通过订阅 store 中的 state 状态变化来刷新自己的视图
+      </textarea></section>
+      <section data-markdown><textarea data-template>
+        ![](./images/flow.png)
+      </textarea></section>
     </section>
 
     <section>
-  <pre><code data-trim data-noescape>
-(def lazy-fib
-  (concat
-   [0 1]
-   ((fn rfib [a b]
-        (lazy-cons (+ a b) (rfib b (+ a b)))) 0 1)))
-  </code></pre>
+      <section data-markdown><textarea data-template>
+        Redux基本概念
+      </textarea></section>
+      <section data-markdown><textarea data-template>
+        Action 是把数据从应用传到 store 的有效载荷
+        ```javascript
+        {
+          type: 'ADD_TODO',
+          payload: {
+            text: 'something todo'
+          }
+        }
+        ```
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        Action Creators
+        ```javascript
+        const addTodo = text => ({
+          type: 'ADD_TODO',
+          payload: {
+            text
+          }
+        });
+        ```
+      </textarea></section>
+
+<!--      actions 只是描述了有事情发生了这一事实，并没有描述应用如何更新 state-->
+<!--      reducer 就是一个纯函数，接收旧的 state 和 action，返回新的 state。-->
+      <section data-markdown><textarea data-template>
+        Reducers 描述应用状态如何根据 actions 进行改变
+        ```javascript
+        const initialState = { todos: [] };
+        function todoReducer(state = initialState, action) {
+          switch (action.type) {
+            case ADD_TODO:
+              const todo = { text: action.payload.text, completed: false };
+              return { todos: [...state.todos, todo] };
+            default:
+              return state;
+          }
+        }
+        ```
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        Store 把action和reducer连接到一起的对象
+
+        - 维持应用的 state
+        - 提供 getState() 方法获取 state
+        - 提供 dispatch(action) 方法更新 state
+        - 通过 subscribe(listener) 注册监听器
+
+        [redux store demo](https://stackblitz.com/edit/redux01-store?file=index.js)
+      </textarea></section>
+    </section>
+
+    <!--    -->
+    <section>
+      <section data-markdown><textarea data-template>
+        如何实现redux
+      </textarea></section>
+
+<!--   容易误操作可读性很差   -->
+      <section data-markdown><textarea data-template>
+        [将数据转换为视图](https://stackblitz.com/edit/redux02-state2view?file=index.js)
+      </textarea></section>
+
+<!--   state暴露   -->
+      <section data-markdown><textarea data-template>
+        [声明式的修改状态](https://stackblitz.com/edit/redux03-declare?file=index.js)
+      </textarea></section>
+
+<!--   闭包管理state、不能自动渲染试图   -->
+      <section data-markdown><textarea data-template>
+        [封装自己的store](https://stackblitz.com/edit/redux04-store?file=store.js)
+      </textarea></section>
+
+<!--   重复渲染   -->
+      <section data-markdown><textarea data-template>
+        [添加监听器](https://stackblitz.com/edit/redux05-subscribe?file=store.js)
+      </textarea></section>
+
+<!--   单个reducer  -->
+      <section data-markdown><textarea data-template>
+        [重复渲染1](https://stackblitz.com/edit/redux06-rerender?file=index.js)
+
+        [重复渲染2](https://stackblitz.com/edit/redux07-rerender?file=index.js)
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        combineReducer
+
+        > 随着应用变得越来越复杂，可以考虑将 reducer 函数 拆分成多个单独的函数，拆分后的每个函数负责独立管理 state 的一部分
+
+        - [移除initialState](https://stackblitz.com/edit/redux08-initialstate?file=store.js)
+        - [实现combineReducers](https://stackblitz.com/edit/redux09-combinereducers?file=store.js)
+
+      </textarea></section>
+    </section>
+
+    <section>
+      <section data-markdown><textarea data-template>
+        中间件 - 增强dispatch
+
+        - [logger中间件](https://stackblitz.com/edit/redux10-logger?file=store.js)
+
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        多个中间件 - 洋葱模型
+        ![洋葱模型](./images/middleware.png)
+      </textarea></section>
+
+      <!--   需要用connect工具方法来简化   -->
+      <section data-markdown><textarea data-template>
+        ```javascript
+        const advance1 = fn => m1(m2(m3(m4(fn))));
+
+        const advance2 = fn => connect([m1, m2, m3, m4])(fn);
+        ```
+
+        [connect](https://stackblitz.com/edit/redux11-connect?file=index.js)
+      </textarea></section>
+
+      <!--   需要用connect工具方法来简化   -->
+      <section data-markdown><textarea data-template>
+        redux 中间件
+        - [applyMiddleware1](https://stackblitz.com/edit/redux12-applymiddleware?file=store.js)
+        - [applyMiddleware2](https://stackblitz.com/edit/redux13-applymiddleware?file=store.js)
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        [thunk](https://stackblitz.com/edit/redux14-thunk?file=thunk.js)
+      </textarea></section>
+    </section>
+
+    <section>
+      <section data-markdown><textarea data-template>
+        - react-redux [https://react-redux.js.org/introduction/quick-start](https://react-redux.js.org/introduction/quick-start)
+        - angular-redux [https://angular-redux.github.io/store/](https://angular-redux.github.io/store/)
+        - vue-redux [https://github.com/yang-wei/vue-redux](https://github.com/yang-wei/vue-redux)
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        [react-redux demo](https://stackblitz.com/edit/redux15-react?file=index.js)
+      </textarea></section>
+
+      <section data-markdown><textarea data-template>
+        -[createContext](https://stackblitz.com/edit/redux16-context?file=index.js)
+        -[react-redux](https://stackblitz.com/edit/redux17-react-redux?file=react-redux.js)
+      </textarea></section>
     </section>
   </div>
 </div>
